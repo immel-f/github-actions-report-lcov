@@ -25,27 +25,64 @@ async function run() {
     const errorMessage = `The code coverage is too low. Expected at least ${minimumCoverage}.`;
     const isFailure = totalCoverage < minimumCoverage;
 
-    if (gitHubToken !== '' && github.context.eventName === 'pull_request') {
+    if (gitHubToken !== '') {
       const octokit = await github.getOctokit(gitHubToken);
       const summary = await summarize(coverageFile);
       const details = await detail(coverageFile, octokit);
-      const sha = github.context.payload.pull_request.head.sha;
-      const shaShort = sha.substr(0, 7);
-      let body = `### [LCOV](https://github.com/marketplace/actions/report-lcov) of commit [<code>${shaShort}</code>](${github.context.payload.pull_request.number}/commits/${sha}) during [${github.context.workflow} #${github.context.runNumber}](../actions/runs/${github.context.runId})\n<pre>${summary}\n\nFiles changed coverage rate:${details}</pre>`;
+      
+      const options = {
+		    repository: github.context.payload.repository.full_name,
+	    }
+      
+      if (github.context.eventName === "pull_request") {
+	    	options.commit = github.context.payload.pull_request.head.sha
+	    	options.baseCommit = github.context.payload.pull_request.base.sha
+	    	options.head = github.context.payload.pull_request.head.ref
+	    	options.base = github.context.payload.pull_request.base.ref
+	    } else if (context.eventName === "push") {
+		    options.commit = github.context.payload.after
+		    options.baseCommit = github.context.payload.before
+		    options.head = github.context.ref
+	    }
+      
+      const shaShort = options.commit.substr(0, 7);
+      
+	    if (context.eventName === "pull_request") {
+        
+        core.debug("Creating a comment in the PR.")
+        
+        let body = `### [LCOV](https://github.com/marketplace/actions/report-lcov) of commit [<code>${shaShort}</code>](${github.context.payload.pull_request.number}/commits/${sha}) during [${github.context.workflow} #${github.context.runNumber}](../actions/runs/${github.context.runId})\n<pre>${summary}\n\nFiles changed coverage rate:${details}</pre>`;
 
-      if (isFailure) {
-        body += `\n:no_entry: ${errorMessage}`;
-      }
+        if (isFailure) {
+          body += `\n:no_entry: ${errorMessage}`;
+        }
+        
+		    await githubClient.issues.createComment({
+			    repo: github.context.repo.repo,
+			    owner: github.context.repo.owner,
+			    issue_number: github.context.payload.pull_request.number,
+			    body: body,
+		    })
+	    } else if (context.eventName === "push") {
+        
+        core.debug("Creating a comment in the Commit.")
+        
+        let body = `### [LCOV](https://github.com/marketplace/actions/report-lcov) of commit [<code>${shaShort}</code>] during [${github.context.workflow} #${github.context.runNumber}](../actions/runs/${github.context.runId})\n<pre>${summary}\n\nFiles changed coverage rate:${details}</pre>`;
 
-      core.debug("Creating a comment in the PR.")
-      await octokit.issues.createComment({
-        owner: github.context.repo.owner,
-        repo: github.context.repo.repo,
-        issue_number: github.context.payload.pull_request.number,
-        body: body,
-      });
+        if (isFailure) {
+          body += `\n:no_entry: ${errorMessage}`;
+        }
+        
+		    await githubClient.repos.createCommitComment({
+			    repo: github.context.repo.repo,
+			    owner: github.context.repo.owner,
+			    commit_sha: options.commit,
+			    body: body,
+		    })
+	    }
+      
     } else {
-      core.info("github-token received is empty. Skipping writing a comment in the PR.");
+      core.info("github-token received is empty. Skipping writing a comment.");
       core.info("Note: This could happen even if github-token was provided in workflow file. It could be because your github token does not have permissions for commenting in target repo.")
     }
 
