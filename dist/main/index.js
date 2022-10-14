@@ -18524,7 +18524,7 @@ async function run() {
 			    commit_sha: options.commit,
 			    body: body,
 		    })
-      
+      	}
       } else {
 	      
       core.info("github-token received is empty. Skipping writing a comment.");
