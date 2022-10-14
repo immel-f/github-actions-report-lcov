@@ -46,8 +46,8 @@ async function run() {
 	    }
       
       const shaShort = options.commit.substr(0, 7);
-      
-	    if (context.eventName === "pull_request") {
+	    
+      if (context.eventName === "pull_request") {
         
         core.debug("Creating a comment in the PR.")
         
@@ -56,14 +56,15 @@ async function run() {
         if (isFailure) {
           body += `\n:no_entry: ${errorMessage}`;
         }
-        
-		    await githubClient.issues.createComment({
+	      
+        await githubClient.issues.createComment({
 			    repo: github.context.repo.repo,
 			    owner: github.context.repo.owner,
 			    issue_number: github.context.payload.pull_request.number,
 			    body: body,
 		    })
-	    } else if (context.eventName === "push") {
+	      
+      } else if (context.eventName === "push") {
         
         core.debug("Creating a comment in the Commit.")
         
@@ -72,16 +73,16 @@ async function run() {
         if (isFailure) {
           body += `\n:no_entry: ${errorMessage}`;
         }
-        
-		    await githubClient.repos.createCommitComment({
+	      
+        await githubClient.repos.createCommitComment({
 			    repo: github.context.repo.repo,
 			    owner: github.context.repo.owner,
 			    commit_sha: options.commit,
 			    body: body,
 		    })
-	    }
       
-    } else {
+      } else {
+	      
       core.info("github-token received is empty. Skipping writing a comment.");
       core.info("Note: This could happen even if github-token was provided in workflow file. It could be because your github token does not have permissions for commenting in target repo.")
     }
