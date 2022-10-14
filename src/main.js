@@ -39,11 +39,11 @@ async function run() {
 	    	options.baseCommit = github.context.payload.pull_request.base.sha
 	    	options.head = github.context.payload.pull_request.head.ref
 	    	options.base = github.context.payload.pull_request.base.ref
-	    } else if (context.eventName === "push") {
-		    options.commit = github.context.payload.after
-		    options.baseCommit = github.context.payload.before
-		    options.head = github.context.ref
-	    }
+      } else if (context.eventName === "push") {
+		options.commit = github.context.payload.after
+		options.baseCommit = github.context.payload.before
+		options.head = github.context.ref
+      }
       
       const shaShort = options.commit.substr(0, 7);
 	    
