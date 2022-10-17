@@ -18483,8 +18483,8 @@ async function run() {
 	    	options.head = github.context.payload.pull_request.head.ref
 	    	options.base = github.context.payload.pull_request.base.ref
       } else if (github.context.eventName === "push") {
-		options.commit = github.context.payload.after
-		options.head = github.context.ref
+		    options.commit = github.context.payload.after
+		    options.head = github.context.ref
       }
       
       const shaShort = options.commit.substr(0, 7);
@@ -18644,29 +18644,33 @@ async function detail(coverageFile, octokit) {
   lines.pop(); // Removes "Total..."
   lines.pop(); // Removes "========"
 
-  const listFilesOptions = octokit
-    .pulls.listFiles.endpoint.merge({
-      owner: github.context.repo.owner,
-      repo: github.context.repo.repo,
-      pull_number: github.context.payload.pull_request.number,
+  if (github.context.eventName === "pull_request") {
+    const listFilesOptions = octokit
+      .pulls.listFiles.endpoint.merge({
+        owner: github.context.repo.owner,
+        repo: github.context.repo.repo,
+        pull_number: github.context.payload.pull_request.number,
+      });
+    const listFilesResponse = await octokit.paginate(listFilesOptions);
+    const changedFiles = listFilesResponse.map(file => file.filename);
+
+    lines = lines.filter((line, index) => {
+      if (index <= 2) return true; // Include header
+
+      for (const changedFile of changedFiles) {
+        console.log(`${line} === ${changedFile}`);
+
+        if (line.startsWith(changedFile)) return true;
+      }
+
+      return false;
     });
-  const listFilesResponse = await octokit.paginate(listFilesOptions);
-  const changedFiles = listFilesResponse.map(file => file.filename);
 
-  lines = lines.filter((line, index) => {
-    if (index <= 2) return true; // Include header
-
-    for (const changedFile of changedFiles) {
-      console.log(`${line} === ${changedFile}`);
-
-      if (line.startsWith(changedFile)) return true;
+    if (lines.length === 3) { // Only the header remains
+      return ' n/a';
     }
 
-    return false;
-  });
-
-  if (lines.length === 3) { // Only the header remains
-    return ' n/a';
+    return '\n  ' + lines.join('\n  ');
   }
 
   return '\n  ' + lines.join('\n  ');
