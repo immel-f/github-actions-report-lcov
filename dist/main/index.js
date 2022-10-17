@@ -18499,7 +18499,7 @@ async function run() {
           body += `\n:no_entry: ${errorMessage}`;
         }
 	      
-        await githubClient.issues.createComment({
+        await octokit.issues.createComment({
 			    repo: github.context.repo.repo,
 			    owner: github.context.repo.owner,
 			    issue_number: github.context.payload.pull_request.number,
@@ -18516,7 +18516,7 @@ async function run() {
           body += `\n:no_entry: ${errorMessage}`;
         }
 	      
-        await githubClient.repos.createCommitComment({
+        await octokit.repos.createCommitComment({
 			    repo: github.context.repo.repo,
 			    owner: github.context.repo.owner,
 			    commit_sha: options.commit,
