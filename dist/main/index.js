@@ -18480,12 +18480,10 @@ async function run() {
       
       if (github.context.eventName === "pull_request") {
 	    	options.commit = github.context.payload.pull_request.head.sha
-	    	options.baseCommit = github.context.payload.pull_request.base.sha
 	    	options.head = github.context.payload.pull_request.head.ref
 	    	options.base = github.context.payload.pull_request.base.ref
       } else if (github.context.eventName === "push") {
 		options.commit = github.context.payload.after
-		options.baseCommit = github.context.payload.before
 		options.head = github.context.ref
       }
       
