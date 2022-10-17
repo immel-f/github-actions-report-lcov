@@ -18483,7 +18483,7 @@ async function run() {
 	    	options.baseCommit = github.context.payload.pull_request.base.sha
 	    	options.head = github.context.payload.pull_request.head.ref
 	    	options.base = github.context.payload.pull_request.base.ref
-      } else if (context.eventName === "push") {
+      } else if (github.context.eventName === "push") {
 		options.commit = github.context.payload.after
 		options.baseCommit = github.context.payload.before
 		options.head = github.context.ref
@@ -18491,9 +18491,9 @@ async function run() {
       
       const shaShort = options.commit.substr(0, 7);
 	    
-      if (context.eventName === "pull_request") {
+      if (github.context.eventName === "pull_request") {
         
-        core.debug("Creating a comment in the PR.")
+        core.info("Creating a comment in the PR.")
         
         let body = `### [LCOV](https://github.com/marketplace/actions/report-lcov) of commit [<code>${shaShort}</code>](${github.context.payload.pull_request.number}/commits/${sha}) during [${github.context.workflow} #${github.context.runNumber}](../actions/runs/${github.context.runId})\n<pre>${summary}\n\nFiles changed coverage rate:${details}</pre>`;
 
@@ -18508,9 +18508,9 @@ async function run() {
 			    body: body,
 		    })
 	      
-      } else if (context.eventName === "push") {
+      } else if (github.context.eventName === "push") {
         
-        core.debug("Creating a comment in the Commit.")
+        core.info("Creating a comment in the Commit.")
         
         let body = `### [LCOV](https://github.com/marketplace/actions/report-lcov) of commit [<code>${shaShort}</code>] during [${github.context.workflow} #${github.context.runNumber}](../actions/runs/${github.context.runId})\n<pre>${summary}\n\nFiles changed coverage rate:${details}</pre>`;
 
