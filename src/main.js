@@ -49,7 +49,7 @@ async function run() {
         
         core.info("Creating a comment in the PR.")
         
-        let body = `### [LCOV](https://github.com/marketplace/actions/report-lcov) of commit [<code>${shaShort}</code>](${github.context.payload.pull_request.number}/commits/${sha}) during [${github.context.workflow} #${github.context.runNumber}](../actions/runs/${github.context.runId})\n<pre>${summary}\n\nFiles changed coverage rate:${details}</pre>`;
+        let body = `### [LCOV](https://github.com/immel-f/github-actions-report-lcov) of commit [<code>${shaShort}</code>](${github.context.payload.pull_request.number}/commits/${sha}) during [${github.context.workflow} #${github.context.runNumber}](../actions/runs/${github.context.runId})\n<pre>${summary}</pre>\n<details><summary>File coverage rate:</summary><pre>${details}</pre></details>`;
 
         if (isFailure) {
           body += `\n:no_entry: ${errorMessage}`;
@@ -66,7 +66,7 @@ async function run() {
         
         core.info("Creating a comment in the Commit.")
         
-        let body = `### [LCOV](https://github.com/marketplace/actions/report-lcov) of commit [<code>${shaShort}</code>] during [${github.context.workflow} #${github.context.runNumber}](../actions/runs/${github.context.runId})\n<pre>${summary}\n\nFiles changed coverage rate:${details}</pre>`;
+        let body = `### [LCOV](https://github.com/immel-f/github-actions-report-lcov) of commit [<code>${shaShort}</code>] during [${github.context.workflow} #${github.context.runNumber}](../actions/runs/${github.context.runId})\n<pre>${summary}</pre>\n<details><summary>File coverage rate:</summary><pre>${details}</pre></details>`;
 
         if (isFailure) {
           body += `\n:no_entry: ${errorMessage}`;
