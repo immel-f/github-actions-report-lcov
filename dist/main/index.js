@@ -18487,6 +18487,7 @@ async function run() {
 		    options.head = github.context.ref
       }
       
+      const sha = options.commit
       const shaShort = options.commit.substr(0, 7);
 	    
       if (github.context.eventName === "pull_request") {
