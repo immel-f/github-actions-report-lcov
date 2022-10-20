@@ -43,6 +43,7 @@ async function run() {
 		    options.head = github.context.ref
       }
       
+      const sha = options.commit
       const shaShort = options.commit.substr(0, 7);
 	    
       if (github.context.eventName === "pull_request") {
@@ -55,12 +56,16 @@ async function run() {
           body += `\n:no_entry: ${errorMessage}`;
         }
 	      
-        await githubClient.issues.createComment({
-			    repo: github.context.repo.repo,
-			    owner: github.context.repo.owner,
-			    issue_number: github.context.payload.pull_request.number,
-			    body: body,
-		    })
+        try {
+          await octokit.issues.createComment({
+			      repo: github.context.repo.repo,
+			      owner: github.context.repo.owner,
+			      issue_number: github.context.payload.pull_request.number,
+			      body: body,
+		      })
+        } catch (error) {
+          core.info("Error while trying to write a comment in the PR. This may be caused by insufficient permissions of the action.")
+        }
 	      
       } else if (github.context.eventName === "push") {
         
@@ -72,12 +77,16 @@ async function run() {
           body += `\n:no_entry: ${errorMessage}`;
         }
 	      
-        await githubClient.repos.createCommitComment({
-			    repo: github.context.repo.repo,
-			    owner: github.context.repo.owner,
-			    commit_sha: options.commit,
-			    body: body,
-		    })
+        try {
+          await octokit.repos.createCommitComment({
+			      repo: github.context.repo.repo,
+			      owner: github.context.repo.owner,
+			      commit_sha: options.commit,
+			      body: body,
+		      })
+        } catch (error) {
+          core.info("Error while trying to write a comment in the commit. This may be caused by insufficient permissions of the action.")
+        }
       	}
       } else {
 	      
